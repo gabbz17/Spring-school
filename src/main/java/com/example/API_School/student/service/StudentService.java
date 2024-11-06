@@ -1,5 +1,7 @@
 package com.example.API_School.student.service;
 
+import com.example.API_School.course.entity.Course;
+import com.example.API_School.course.service.CourseService;
 import com.example.API_School.student.entity.Student;
 import com.example.API_School.student.repository.StudentRepository;
 import org.springframework.stereotype.Service;
@@ -10,12 +12,20 @@ import java.util.List;
 public class StudentService {
 
     public final StudentRepository repository;
-    public StudentService(StudentRepository repository) {this.repository = repository;}
-    private final PasswordEncoder passwordEncoder;
+    private CourseService service;
+    public StudentService(StudentRepository repository, CourseService service) {this.repository = repository;
+        this.service = service;
+    }
 
+    public void delete(Long id){
+        repository.deleteById(id);
+    }
 
     public Student create(Student student){
-        student.setPassword(passwordEncoder.encode(student.getPassword()));
+        Course cr = service.findByName(student.getCourse());
+        if (cr == null){
+            throw new RuntimeException("Este curso não existe!");
+        }
         return repository.save(student);
     }
 
